@@ -1,0 +1,1061 @@
+library(TreePar)
+?TreePar
+bdtypes.stt.lik
+? bdtypes.stt.lik
+set.seed(1)#
+lambda11<-15#
+lambda12<-3#
+lambda21<-1#
+lambda22<-3#
+death1<-4#
+death2<-4#
+sampprob1<-0.05#
+sampprob2<-0.05#
+l<-rbind(c(lambda11,lambda12),c(lambda21,lambda22))#
+d<-c(death1,death2)#
+s<-c(sampprob1,sampprob2)#
+n<-20#
+init<- -1     #
+#
+tree<-sim.bdtypes.stt.taxa(n,l,d,s,init)#
+# Calculate likelihood for lambda11=15,lambda12=lambda21=lambda22=mu1=mu2=2,gamma=0#
+bdtypes.stt.lik(par=c(2,2,2,2),phylo=tree,#
+fix=rbind(c(1,6,7,8),c(15,-5,0,0),c(1,1,1,1)),sampfrac=s,survival=0,posR=0)
+tree
+out<-try(optim(c(2,2,2,2),bdtypes.stt.lik,phylo=tree,fix=rbind(c(1,6,7,8),c(15,-5,0,0),c(1,1,1,1)),#
+sampfrac=s,survival=0,posR=0,control=list(maxit=10000)))
+library(TreePar)
+?getx
+?TreePar
+?bd.shifts.optim
+bd.shifts.optim
+?TreePar
+library(TreeSim)#
+p0m <- function(t,l,m){m*(1-exp(-(l-m)*t))/(l-m*exp(-(l-m)*t)) }#
+#
+time<-100#
+numbsim<-10000#
+l<-0.005#
+m<-0
+mrca<-TRUE#
+trees=sim.bd.age(time,numbsim,l,m,complete=FALSE,mrca=mrca)#
+ntips<-vector()#
+for (i in 1:length(trees)){#
+	if (class(trees[[i]])=="phylo"){#
+	ntips<-c(ntips,length(trees[[i]]$tip.label))}#
+	else {if (trees[[i]]==1) {ntips<-c(ntips,1)}}#
+}
+drop.tip
+library(TreePar)
+tree<-sim.bd.taxa(20,1,2,1,complete=FALSE,stochsampling=TRUE)
+addroot(tree[[1]],tree[[1]]$root.edge)
+tree[[1]]$edge
+tree[[1]]$edge.length
+set.seed(1)#
+x<-c(10:1)#
+bd.densdep.optim(x,discrete=FALSE,continuous=TRUE)#
+#
+# Laser returns same result for Yule model#
+res <- -bd.densdep.optim(x,Yule=TRUE,discrete=FALSE,continuous=TRUE)[[2]]$value #
+res<-res+ sum(log(2:length(x)))#
+res
+library(laser)#
+DDL(x)
+set.seed(1)#
+#
+# First we simulate a tree, and then estimate the parameters for the tree:#
+# Number of species#
+nspecies <- 20#
+# At time 1 and 2 in the past, we have a rate shift:#
+time <- c(0,1,2)#
+# Mass extinction intensities 0.5 at time 1 in past, 0.4 at time 2 in past. #
+# Present day species are all sampled (rho_1=1):#
+rho <- c(1,0.5,0.4)#
+# speciation rates (between t_i,t_{i+1} we have speciation rate lambda_i):#
+lambda <- c(2,2,1)#
+# extinction rates (between t_i,t_{i+1} we have extinction rate mu_i):#
+mu <- c(1,1,0)#
+# Simulation of a tree:#
+tree<-sim.rateshift.taxa(nspecies,1,lambda,mu,frac=rho,times=time,complete=FALSE)#
+# Extracting the speciation times x:#
+x<-sort(getx(tree[[1]]),decreasing=TRUE)#
+#
+# When estimating the shift times t for x, we allow the shift times to be 0.6, 0.8, 1, 1.2, .. ,2.4:#
+start <- 0.6#
+end <- 2.4#
+grid <- 0.2
+res <- bd.shifts.optim(x,rho,grid,start,end)[[2]]
+res[[2]]
+res[[1]]
+res <- bd.shifts.optim(x,rho,grid,start,end)
+res[[2]]
+res[[1]]
+res[[1]][[1]]
+res[[1]][[2]]
+res[[1]][[3]]
+res <- -bd.densdep.optim(x,Yule=TRUE,discrete=FALSE,continuous=TRUE)[[2]]$value #
+res<-res+ sum(log(2:length(x)))#
+res
+DDL(x)
+res <- -bd.densdep.optim(x,Yule=TRUE,discrete=FALSE,continuous=TRUE)[[2]]$value #
+res
+DDL(x)-sum(log(2:length(x)))
+set.seed(1)#
+#
+# First we simulate a tree, and then estimate the parameters for the tree:#
+# Number of species#
+nspecies <- 20#
+# At time 1 and 2 in the past, we have a rate shift:#
+time <- c(0,1,2)#
+# Mass extinction intensities 0.5 at time 1 in past, 0.4 at time 2 in past. #
+# Present day species are all sampled (rho_1=1):#
+rho <- c(1,0.5,0.4)#
+# speciation rates (between t_i,t_{i+1} we have speciation rate lambda_i):#
+lambda <- c(2,2,1)#
+# extinction rates (between t_i,t_{i+1} we have extinction rate mu_i):#
+mu <- c(1,1,0)#
+# Simulation of a tree:#
+tree<-sim.rateshift.taxa(nspecies,1,lambda,mu,frac=rho,times=time,complete=FALSE)#
+# Extracting the speciation times x:#
+x<-sort(getx(tree[[1]]),decreasing=TRUE)#
+#
+# When estimating the the rate shift times t based on branching times x, we allow the shift times to be 0.6, 0.8, 1, 1.2, .. ,2.4:#
+start <- 0.6#
+end <- 2.4#
+grid <- 0.2#
+#
+\donttest{#
+# We fix rho and estimate time, lambda, mu:#
+res <- bd.shifts.optim(x,rho,grid,start,end)[[2]]#
+res
+res[[2]]
+set.seed(1)#
+#
+# First we simulate a tree, and then estimate the parameters for the tree:#
+# Number of species#
+nspecies <- 20#
+# At time 1 and 2 in the past, we have a rate shift:#
+time <- c(0,1,2)#
+# Mass extinction intensities 0.5 at time 1 in past, 0.4 at time 2 in past. #
+# Present day species are all sampled (rho_1=1):#
+rho <- c(1,0.5,0.4)#
+# speciation rates (between t_i,t_{i+1} we have speciation rate lambda_i):#
+lambda <- c(2,2,1)#
+# extinction rates (between t_i,t_{i+1} we have extinction rate mu_i):#
+mu <- c(1,1,0)#
+# Simulation of a tree:#
+tree<-sim.rateshift.taxa(nspecies,1,lambda,mu,frac=rho,times=time,complete=FALSE)#
+# Extracting the speciation times x:#
+x<-sort(getx(tree[[1]]),decreasing=TRUE)#
+#
+# When estimating the the rate shift times t based on branching times x, we allow the shift times to be 0.6, 0.8, 1, 1.2, .. ,2.4:#
+start <- 0.6#
+end <- 2.4#
+grid <- 0.2
+res <- bd.shifts.optim(x,rho,grid,start,end)[[2]]#
+res
+2.2*1.7
+200000*1.2
+200000*0.012
+595000*0.8
+595000*0.8*0.012
+700*12
+3000*0.18
+8400*0.18
+priceoverall <- 545000#
+eigenmiet <- 800*12#
+#
+morgage <- 200000#
+interestrate<-0.012#
+interest <-0.012#
+taxrate<- 0.2    #32000/160000#
+#
+expenseallloan <-   morgage*(interestrate -interest)* (1-taxrate)#
+expenseallloan
+priceoverall <- 545000#
+eigenmiet <- 800*12#
+#
+morgage <- 200000#
+interestrate<-0.012#
+interest <-0.01#
+taxrate<- 0.2    #32000/160000#
+#
+expenseallloan <-   morgage*(interestrate -interest)* (1-taxrate)#
+expenseallloan
+priceoverall <- 545000#
+eigenmiet <- 800*12#
+#
+morgage <- 200000#
+interestrate<-0.012#
+interest <-0.012#
+taxrate<- 0.2    #32000/160000#
+#
+expenseallloan <-   morgage*(interestrate -interest)* (1-taxrate)#
+expenseallloan
+hypo<-morgage* interestrate*(1-taxrate)#
+eigenmiettax<-eigenmiet*(1-taxrate)#
+sumexpkauf<-hypo+eigenmiettax#
+#Miete#
+miete<-1500*12#
+zins<-(priceoverall-morgage)* interest*(1-taxrate)#
+sumexpmiete<-miete-zins#
+sumexpkauf-sumexpmiete
+diff<-eigenmiet*(1-taxrate)-miete+priceoverall*interest*(1-taxrate)#
+diff
+priceoverall <- 545000#
+eigenmiet <- 800*12#
+#
+morgage <- 200000#
+interestrate<-0.012#
+interest <-0.012#
+taxrate<- 0.3    #32000/160000#
+#
+expenseallloan <-   morgage*(interestrate -interest)* (1-taxrate)#
+expenseallloan#
+#
+#############
+#
+#Kauf#
+hypo<-morgage* interestrate*(1-taxrate)#
+eigenmiettax<-eigenmiet*(1-taxrate)#
+sumexpkauf<-hypo+eigenmiettax#
+#Miete#
+miete<-1500*12#
+zins<-(priceoverall-morgage)* interest*(1-taxrate)#
+sumexpmiete<-miete-zins#
+sumexpkauf-sumexpmiete#
+#
+#if interestrate-interest = 0:#
+#neg means buying better#
+diff<-eigenmiet*(1-taxrate)-miete+priceoverall*interest*(1-taxrate)#
+diff
+priceoverall <- 595000#
+eigenmiet <- 800*12#
+#
+morgage <- 200000#
+interestrate<-0.012#
+interest <-0.012#
+taxrate<- 0.3    #32000/160000#
+#
+expenseallloan <-   morgage*(interestrate -interest)* (1-taxrate)#
+expenseallloan#
+#
+#############
+#
+#Kauf#
+hypo<-morgage* interestrate*(1-taxrate)#
+eigenmiettax<-eigenmiet*(1-taxrate)#
+sumexpkauf<-hypo+eigenmiettax#
+#Miete#
+miete<-1500*12#
+zins<-(priceoverall-morgage)* interest*(1-taxrate)#
+sumexpmiete<-miete-zins#
+sumexpkauf-sumexpmiete#
+#
+#if interestrate-interest = 0:#
+#neg means buying better#
+diff<-eigenmiet*(1-taxrate)-miete+priceoverall*interest*(1-taxrate)#
+diff
+priceoverall <- 595000#
+eigenmiet <- 800*12#
+#
+morgage <- 200000#
+interestrate<-0.012#
+interest <-0.012#
+taxrate<- 0.25    #32000/160000#
+#
+expenseallloan <-   morgage*(interestrate -interest)* (1-taxrate)#
+expenseallloan#
+#
+#############
+#
+#Kauf#
+hypo<-morgage* interestrate*(1-taxrate)#
+eigenmiettax<-eigenmiet*(1-taxrate)#
+sumexpkauf<-hypo+eigenmiettax#
+#Miete#
+miete<-1500*12#
+zins<-(priceoverall-morgage)* interest*(1-taxrate)#
+sumexpmiete<-miete-zins#
+sumexpkauf-sumexpmiete#
+#
+#if interestrate-interest = 0:#
+#neg means buying better#
+diff<-eigenmiet*(1-taxrate)-miete+priceoverall*interest*(1-taxrate)#
+diff
+priceoverall <- 595000#
+eigenmiet <- 800*12#
+#
+morgage <- 200000#
+interestrate<-0.012#
+interest <-0.012#
+taxrate<- 0.2    #32000/160000#
+#
+expenseallloan <-   morgage*(interestrate -interest)* (1-taxrate)#
+expenseallloan#
+#
+#############
+#
+#Kauf#
+hypo<-morgage* interestrate*(1-taxrate)#
+eigenmiettax<-eigenmiet*(1-taxrate)#
+sumexpkauf<-hypo+eigenmiettax#
+#Miete#
+miete<-1500*12#
+zins<-(priceoverall-morgage)* interest*(1-taxrate)#
+sumexpmiete<-miete-zins#
+sumexpkauf-sumexpmiete#
+#
+#if interestrate-interest = 0:#
+#neg means buying better#
+diff<-eigenmiet*(1-taxrate)-miete+priceoverall*interest*(1-taxrate)#
+diff
+(6.29+1.1+2.51)*10.40
+(6.29+1.1+2.51)*10.40-2.2*4.5
+-27*2
+(6.29+1.1+2.51-27*2)*10.40-2.2*4.5
+(6.29+1.1+2.51-.27*2)*10.40-2.2*4.5
+(6.29+1.1+2.51-.27*2)*10.40-2.2*4.5+1.2*2.2
+(6.29+2.51+2.2/2 -.27*2)*10.40-2.2*4.5+1.2*2.2
+560000/92*81
+592000/92*81
+library(TreeSim)
+?TreeSim
+?sim.bdsky.stt
+2^30
+2^10
+library(TreeSim)
+library(TreePar)
+?LikType
+?LikTypes
+?TreePar
+? LikTypesSTT
+test<-read.tree(text="((C:1.5,D:0.5):1,(A:1,B:1):3);")#
+test<-addroot(test,0.1)#
+par1<-2#
+par2<-1#
+par3<-0.5#
+par4<-3#
+par5<-1#
+par6<-0.5#
+par7<-1/3#
+par8<-0.5#
+####################################################
+#
+for (survival in c(0,1)) {#
+test$states<-c(2,1,2,1)#
+print(-LikTypesSTT(c(par4,par3,par2,par1,par6,par5,0,0),test,#
+sampfrac=c(par8,par7),survival=survival,rtol=10e-14,atol=10e-14,migr=0,freq=0.5,unknown=TRUE))
+test<-read.tree(text="((C:1.5,D:0.5):1,(A:1,B:1):3);")#
+test<-addroot(test,0.1)#
+par1<-2#
+par2<-1#
+par3<-0.5#
+par4<-3#
+par5<-1#
+par6<-0.5#
+par7<-1/3#
+par8<-0.5#
+####################################################
+#
+test$states<-c(2,1,2,1)#
+print(-LikTypesSTT(c(par4,par3,par2,par1,par6,par5,0,0),test,#
+sampfrac=c(par8,par7),survival=0,rtol=10e-14,atol=10e-14,migr=0,freq=0.5,unknown=TRUE))
+test<-read.tree(text="((C:1.5,D:0.5):1,(A:1,B:1):3);")#
+test<-addroot(test,0.1)#
+par1<-2#
+par2<-1#
+par3<-0.5#
+par4<-3#
+par5<-1#
+par6<-0.5#
+par7<-1/3#
+par8<-0.5
+test$states<-c(2,1,2,1)#
+print(-LikTypesSTT(c(par4,par3,par2,par1,par6,par5,0,0),test,#
+sampfrac=c(par8,par7),survival=0,rtol=10e-14,atol=10e-14,migr=0,freq=0.5,unknown=TRUE))
+library(TreeSim)
+?TreeSim
+sim.bd.age
+sim.bdtypes.stt.taxa
+TreeSim:::sim.bd.age.help
+TreeSim:::sim.bd.age.loop
+TreeSim:::sim2.bd.age
+TreeSim:::sim2.bd
+TreeSim:::sim2.bd.origin
+rexp(1,1/7)
+dexp(1,1/7)
+?dexp
+pexp(1,1/7)
+pexp(7,1/7)
+pexp(90,1/7)
+pexp(90,1/3)
+library(TreePar)
+?LikShifts
+timevec<-c(0,0.15,0.25)#
+lambdavec<-c(2.5,2,3)#
+muvec<-c(0.5,0.7,0.6)#
+x<-c(0.3,0.19,0.1)#
+x1<-c(x,max(x)*1.1)#
+x2<-c(x,max(x))#
+sampling<-0.4#
+grouptime<- rep(min(x)*0.95,length(x)+1)#
+group<- cbind(grouptime,grouptime*0+1)#
+group2 <- group#
+group2[1,2] <- 4#
+group2[2,2] <- 5#
+group2[3,2] <- 3#
+group3<-group#
+group3[2,2]<-10
+Constant speciation and extinction rates #
+# condition on age of tree x[1] and number of tips n#
+LikShiftsPP(x,timevec[1],lambdavec[1],muvec[1],sampling,n=1)#
+LikConstantn(lambdavec[1],muvec[1],sampling,x)#
+print(" ")#
+# condition on age of tree x[1]#
+for (survival in c(0,1)) {#
+print(LikConstant(lambdavec[1],muvec[1],sampling,x,root=1,survival=survival))#
+print(LikShiftsSTT(par=c(lambdavec[1],lambdavec[1],muvec[1],muvec[1],1),x,x*0+1,#
+sprob=c(0,0),sampling=c(sampling,1),survival=survival,root=1))#
+print(LikShiftsPP(x,c(0),lambdavec[1],muvec[1],sampling,root=1,survival=survival))#
+print(LikShifts(x,c(0),lambdavec[1],muvec[1],c(sampling),survival=survival))#
+print(LikShifts(x,c(0),lambdavec[1],muvec[1],c(sampling),survival= survival,groups=group))#
+print(LikShifts(x,c(0),c(lambdavec[1],lambdavec[1],lambdavec[1]),#
+c(muvec[1],muvec[1],muvec[1]),c(sampling,1,1),survival= survival))#
+if (survival == 0 ) {#
+	print(LikDD(c(lambdavec[1],muvec[1], 200), #
+	model=0 ,root=1, x=sort(x),sampling=sampling)[1])  }#
+if (survival == 0 ) {#
+	print(LikDD(c(lambdavec[1],muvec[1], 300), #
+	model=-1 ,root=1, x=sort(x),sampling=sampling)[1])  }#
+print(" ")#
+}
+LikShiftsPP(x,timevec[1],lambdavec[1],muvec[1],sampling,n=1)#
+LikConstantn(lambdavec[1],muvec[1],sampling,x)
+LikConstant
+LikShifts
+print(LikConstant(lambdavec[1],muvec[1],sampling,x,root=1,survival=survival))
+print(LikShifts(x,c(0),lambdavec[1],muvec[1],c(sampling),survival= survival,groups=group))
+print(LikShifts(x,c(0),lambdavec[1],muvec[1],c(sampling),survival= survival))
+LikConst
+LikConstant
+library(TreePar)
+?TreePar
+? LikShiftsSTT
+425000/52
+library(TreePar)
+?TreePar
+library(TreePar)
+?TreePar
+?LikAge
+4934.9+33+6+100
+5330/4934
+(4934.9+33+6+100)*1.08
+q <- function(t,l,m,rho=1){ #
+	rho*l*(1- exp(-(l-m)*t))/(rho*l+(l*(1-rho)-m)*exp(-(l-m)*t))#
+	}#
+p0 <- function(t,l,m,rho=1){ #
+	1-(rho*(l-m))/(rho*l+(l*(1-rho)-m)*exp(-(l-m)*t))#
+	}#
+p1 <- function(t,l,m,rho=1){ rho*(l-m)^2 * exp(-(l-m)*t)/(rho*l+(l*(1-rho)-m)*exp(-(l-m)*t))^2}#
+pn <- function(t,l,m,rho=1,n){ p1(t,l,m,rho) * (q(t,l,m,rho))^(n-1)}
+pLTT <- function(n,t,tend,l,m){#
+	out<-pn(t,l,m,n=n)*(1-p0(tend-t,l,m))^n/(1-p0(tend,l,m))#
+}#
+#
+ExpLTTnumeric <- function(t,tend,l,m,sumend=100){#
+	out<-0#
+	for (i in 1:sumend) {out <- out + i * pLTT(i,t,tend,l,m)}#
+}
+ExpLTTreconst <-function(t,tend,l,m){#
+	out<-exp((l-m)*t)/(1-p0(tend,l,m))*(1-p0(tend-t,l,m))#
+}#
+#
+ExpLTTreconstall <-function(t,tend,l,m){#
+	out<-exp((l-m)*t)*(1-p0(tend-t,l,m))#
+}#
+ExpLTT <- function(t,tend,l,m){#
+	out<-exp((l-m)*t)/(1-p0(tend,l,m)) - (p0(tend,l,m)-p0(t,l,m))/((1-p0(tend-t,l,m))*(1-p0(t,l,m)))#
+	out#
+}#
+#
+ExpLTTall <- function(t,l,m){#
+	#out<-p1(t,l,m)/(1-l/m*p0(t,l,m))^2#
+	out <- exp((l-m)*t)#
+	out#
+}
+ExpLTT(20,50,1,0.9)
+ExpLTTnumeric(20,50,1,0.9,100)
+ExpLTTnumeric <- function(t,tend,l,m,sumend=100){#
+	out<-0#
+	for (i in 1:sumend) {out <- out + i * pLTT(i,t,tend,l,m)}#
+	out#
+}
+ExpLTTnumeric(20,50,1,0.9,100)
+ExpLTTnumeric(20,50,1,0.9,1000)
+pLTT <- function(n,t,tend,l,m){#
+	out<-pn(t,l,m,n=n)*(1-p0(tend-t,l,m)^n)/(1-p0(tend,l,m))#
+}#
+#
+ExpLTTnumeric <- function(t,tend,l,m,sumend=100){#
+	out<-0#
+	for (i in 1:sumend) {out <- out + i * pLTT(i,t,tend,l,m)}#
+	out#
+}
+ExpLTT(20,50,1,0.9)#
+ExpLTTnumeric(20,50,1,0.9,1000)
+ExpLTT(20,50,1,0.9)#
+ExpLTTnumeric(20,50,1,0.9,10000)
+pLTTreconst <- function(n,t,tend,l,m){#
+	out<-p1(t,l,m)* (l/m*p0(t,l,m))^(n-1)*(1-p0(tend-1,l,m))^n / (1-l/m*p0(t,l,m)*po(tend-t,l,m))#
+	out#
+}
+pLTT <- function(n,t,tend,l,m){#
+	out<-pn(t,l,m,n=n)*(1-p0(tend-t,l,m)^n)/(1-p0(tend,l,m))#
+}#
+#
+ExpLTTnumeric <- function(t,tend,l,m,sumend=100){#
+	out<-0#
+	for (i in 1:sumend) {out <- out + i * pLTT(i,t,tend,l,m)}#
+	out#
+}#
+#
+pLTTreconst <- function(n,t,tend,l,m){#
+	out<-p1(t,l,m)* (l/m*p0(t,l,m))^(n-1)*(1-p0(tend-1,l,m))^n / (1-l/m*p0(t,l,m)*po(tend-t,l,m))#
+	out#
+}#
+#
+ExpLTTreconstnumeric <- function(t,tend,l,m,sumend=100){#
+	out<-0#
+	for (i in 1:sumend) {out <- out + i * pLTTreconst(i,t,tend,l,m)}#
+	out#
+}
+ExpLTTreconst(20,50,1,0.9)
+ExpLTTreconst <-function(t,tend,l,m){#
+	out<-exp((l-m)*t)/(1-p0(tend,l,m))*(1-p0(tend-t,l,m))#
+	out#
+}#
+#
+ExpLTTreconstall <-function(t,tend,l,m){#
+	out<-exp((l-m)*t)*(1-p0(tend-t,l,m))#
+	out#
+}
+ExpLTTreconst(20,50,1,0.9)
+ExpLTTnumeric(20,50,1,0.9,10000)
+ExpLTTreconstnumeric(20,50,1,0.9,10000)
+pLTTreconst <- function(n,t,tend,l,m){#
+	out<-p1(t,l,m)* (l/m*p0(t,l,m))^(n-1)*(1-p0(tend-1,l,m))^n / (1-l/m*p0(t,l,m)*p0(tend-t,l,m))#
+	out#
+}
+ExpLTTreconst(20,50,1,0.9)#
+ExpLTTreconstnumeric(20,50,1,0.9,10000)
+pLTTreconst <- function(n,t,tend,l,m){#
+	#out<-p1(t,l,m)* (l/m*p0(t,l,m))^(n-1)*(1-p0(tend-1,l,m))^n / (1-l/m*p0(t,l,m)*p0(tend-t,l,m))#
+	out<-0#
+	for (index in 0:100){#
+		factorial(n+index)/(factorial(n)*factorial(index))*p1(t,l,m)*(l/m*p0(t,l,m))^(index+n-1)*(1-p0(tend-t,l,m))^n*p0(tend-t,l,m)^index#
+	}#
+	out#
+}
+ExpLTTreconstnumeric <- function(t,tend,l,m,sumend=100){#
+	out<-0#
+	for (i in 1:sumend) {out <- out + i * pLTTreconst(i,t,tend,l,m)}#
+	out#
+}
+ExpLTTreconst(20,50,1,0.9)#
+ExpLTTreconstnumeric(20,50,1,0.9,10000)
+ExpLTTreconst(20,50,1,0.9)#
+ExpLTTreconstnumeric(20,50,1,0.9,100)
+pLTT <- function(n,t,tend,l,m){#
+	out<-pn(t,l,m,n=n)*(1-p0(tend-t,l,m)^n)/(1-p0(tend,l,m))#
+}#
+#
+ExpLTTnumeric <- function(t,tend,l,m,sumend=100){#
+	out<-0#
+	for (i in 1:sumend) {out <- out + i * pLTT(i,t,tend,l,m)}#
+	out#
+}#
+#
+pLTTreconst <- function(n,t,tend,l,m){#
+	#out<-p1(t,l,m)* (l/m*p0(t,l,m))^(n-1)*(1-p0(tend-1,l,m))^n / (1-l/m*p0(t,l,m)*p0(tend-t,l,m))#
+	out<-0#
+	for (index in 0:100){#
+		factorial(n+index)/(factorial(n)*factorial(index))*p1(t,l,m)*(l/m*p0(t,l,m))^(index+n-1)*(1-p0(tend-t,l,m))^n*p0(tend-t,l,m)^index#
+	}#
+	out#
+}#
+#
+ExpLTTreconstnumeric <- function(t,tend,l,m,sumend=100){#
+	out<-0#
+	for (i in 1:sumend) {out <- out + i * pLTTreconst(i,t,tend,l,m)}#
+	out#
+}
+ExpLTT(20,50,1,0.9)#
+ExpLTTnumeric(20,50,1,0.9,10000)#
+#
+ExpLTTreconst(20,50,1,0.9)#
+ExpLTTreconstnumeric(20,50,1,0.9,100)
+warnings()
+pLTTreconst <- function(n,t,tend,l,m){#
+	#out<-p1(t,l,m)* (l/m*p0(t,l,m))^(n-1)*(1-p0(tend-1,l,m))^n / (1-l/m*p0(t,l,m)*p0(tend-t,l,m))#
+	out<-0#
+	for (index in 0:100){#
+		choose(n+index,n) *p1(t,l,m)*(l/m*p0(t,l,m))^(index+n-1)*(1-p0(tend-t,l,m))^n*p0(tend-t,l,m)^index#
+	}#
+	out#
+}
+ExpLTTreconst(20,50,1,0.9)#
+ExpLTTreconstnumeric(20,50,1,0.9,100)
+pLTTreconst <- function(n,t,tend,l,m){#
+	#out<-p1(t,l,m)* (l/m*p0(t,l,m))^(n-1)*(1-p0(tend-1,l,m))^n / (1-l/m*p0(t,l,m)*p0(tend-t,l,m))#
+	out<-0#
+	for (index in 0:100){#
+		out<-out+choose(n+index,n) *p1(t,l,m)*(l/m*p0(t,l,m))^(index+n-1)*(1-p0(tend-t,l,m))^n*p0(tend-t,l,m)^index#
+	}#
+	out#
+}
+ExpLTTreconst(20,50,1,0.9)#
+ExpLTTreconstnumeric(20,50,1,0.9,100)
+pLTTreconst <- function(n,t,tend,l,m){#
+	#out<-p1(t,l,m)* (l/m*p0(t,l,m))^(n-1)*(1-p0(tend-1,l,m))^n / (1-l/m*p0(t,l,m)*p0(tend-t,l,m))#
+	out<-0#
+	for (index in 0:1000){#
+		out<-out+choose(n+index,n) *p1(t,l,m)*(l/m*p0(t,l,m))^(index+n-1)*(1-p0(tend-t,l,m))^n*p0(tend-t,l,m)^index#
+	}#
+	out#
+}
+pLTTreconst <- function(n,t,tend,l,m){#
+	#out<-p1(t,l,m)* (l/m*p0(t,l,m))^(n-1)*(1-p0(tend-1,l,m))^n / (1-l/m*p0(t,l,m)*p0(tend-t,l,m))#
+	out<-0#
+	for (index in 0:1000){#
+		out<-out+choose(n+index,n) *p1(t,l,m)*(l/m*p0(t,l,m))^(index+n-1)*(1-p0(tend-t,l,m))^n*p0(tend-t,l,m)^index#
+	}#
+	out#
+}#
+#
+ExpLTTreconstnumeric <- function(t,tend,l,m,sumend=100){#
+	out<-0#
+	for (i in 1:sumend) {out <- out + i * pLTTreconst(i,t,tend,l,m)}#
+	out#
+}
+ExpLTTreconst(20,50,1,0.9)#
+ExpLTTreconstnumeric(20,50,1,0.9,100)
+ExpLTTreconstnumeric(20,50,1,0.9,500)
+ExpLTTreconst(2,50,1,0.9)
+ExpLTTreconstnumeric(2,50,1,0.9,100)
+ExpLTTreconstnumeric(2,50,1,0.9,200)
+pLTTreconst <- function(n,t,tend,l,m){#
+	#out<-p1(t,l,m)* (l/m*p0(t,l,m))^(n-1)*(1-p0(tend-1,l,m))^n / (1-l/m*p0(t,l,m)*p0(tend-t,l,m))#
+	out<-0#
+	for (index in 0:1000){#
+		out<-out+choose(n+index,n) *p1(t,l,m)*(l/m*p0(t,l,m))^(index+n-1)*(1-p0(tend-t,l,m))^n*p0(tend-t,l,m)^index#
+	}#
+	out#
+}#
+#
+ExpLTTreconstnumeric <- function(t,tend,l,m,sumend=100){#
+	out<-0#
+	for (i in 1:sumend) {out <- out + i * pLTTreconst(i,t,tend,l,m)}#
+	out#
+}
+ExpLTTreconst(2,50,1,0.9)#
+ExpLTTreconstnumeric(2,50,1,0.9,200)
+pLTTreconst <- function(n,t,tend,l,m){#
+	#out<-p1(t,l,m)* (l/m*p0(t,l,m))^(n-1)*(1-p0(tend-1,l,m))^n / (1-l/m*p0(t,l,m)*p0(tend-t,l,m))#
+	out<-0#
+	for (index in 0:1000){#
+		out<-out+choose(n+index,n) *p1(t,l,m)*(l/m*p0(t,l,m))^(index+n-1)*(1-p0(tend-t,l,m))^n*p0(tend-t,l,m)^index / (1-p0(tend,l,m))#
+	}#
+	out#
+}
+ExpLTTreconst(2,50,1,0.9)#
+ExpLTTreconstnumeric(2,50,1,0.9,200)
+const<-sqrt((psi+mu-lambda)^2+4*lambda*psi)
+const<- function(lambda,mu,psi) {#
+	out<-sqrt((psi+mu-lambda)^2+4*lambda*psi)#
+	out#
+}#
+#
+p0<-function(t,lambda,mu,psi) {#
+	out<-2*mu*(exp(const*t))#
+	out<-out/(const+const*exp(const*t)+(lambda+mu+psi)*(exp(const*t)-1))#
+	out#
+}
+p0(4,2,1,1)
+const(2,1,1)
+consth<- function(lambda,mu,psi) {#
+	out<-sqrt((psi+mu-lambda)^2+4*lambda*psi)#
+	out#
+}#
+#
+p0<-function(t,lambda,mu,psi) {#
+	const<-consth(lambda,mu,psi)#
+	out<-2*mu*(exp(const*t))#
+	out<-out/(const+const*exp(const*t)+(lambda+mu+psi)*(exp(const*t)-1))#
+	out#
+}
+p0(4,2,1,1)
+consth<- function(lambda,mu,psi) {#
+	out<-sqrt((psi+mu-lambda)^2+4*lambda*psi)#
+	out#
+}#
+#
+p0all<-function(t,lambda,mu,psi) {#
+	const<-consth(lambda,mu,psi)#
+	out<-2*mu*(exp(const*t))#
+	out<-out/(const+const*exp(const*t)+(lambda+mu+psi)*(exp(const*t)-1))#
+	out#
+}#
+p0 <- function(t,l,m,rho=1){ #
+	1-(rho*(l-m))/(rho*l+(l*(1-rho)-m)*exp(-(l-m)*t))#
+	}#
+p1 <- function(t,l,m,rho=1){ rho*(l-m)^2 * exp(-(l-m)*t)/(rho*l+(l*(1-rho)-m)*exp(-(l-m)*t))^2}#
+pn <- function(t,l,m,rho=1,n){ p1(t,l,m,rho) * (q(t,l,m,rho))^(n-1)}
+t<-2#
+l<-1#
+m<-0.5#
+psi<-0#
+#
+p0all(t,l,m,psi)#
+p0(t,l,m)
+p0all<-function(t,lambda,mu,psi) {#
+	const<-consth(lambda,mu,psi)#
+	out<-2*mu*(exp(const*t)-1)#
+	out<-out/(const+const*exp(const*t)+(lambda+mu+psi)*(exp(const*t)-1))#
+	out#
+}
+t<-2#
+l<-1#
+m<-0.5#
+psi<-0#
+#
+p0all(t,l,m,psi)#
+p0(t,l,m)
+pnall <- function(n,t,lambda,mu,psi) {#
+	const<-consth(lambda,mu,psi)#
+	out<-2*lambda*(exp(const*t)-1)#
+	out<-out/(const+const*exp(const*t)+(lambda+mu+psi)*(exp(const*t)-1))#
+	out<-out^(n-1)#
+	help1<- (4*mu*lambda*(-1 + exp(const*t))^2 +(mu+lambda+psi+const-(mu+lambda+psi-const)*exp(const*t)) * (const + const*exp(const*t) + (mu + lambda + psi) * (-1 + exp(const*t))))#
+	out<-out*help1#
+	out<-out/(const+const*exp(const*t)+(lambda+mu+psi)*(exp(const*t)-1))^2#
+	out#
+}
+t<-2#
+l<-1#
+m<-0.5#
+psi<-0#
+n<-1#
+#
+p0all(t,l,m,psi)#
+p0(t,l,m)#
+#
+pnall(n,t,l,m,psi)#
+pn(t,l,m,n=n)
+consth<- function(lambda,mu,psi) {#
+	out<-sqrt((psi+mu-lambda)^2+4*lambda*psi)#
+	out#
+}#
+#
+p0all<-function(t,lambda,mu,psi) {#
+	const<-consth(lambda,mu,psi)#
+	out<-2*mu*(exp(const*t)-1)#
+	out<-out/(const+const*exp(const*t)+(lambda+mu+psi)*(exp(const*t)-1))#
+	out#
+}#
+pnall <- function(n,t,lambda,mu,psi) {#
+	const<-consth(lambda,mu,psi)#
+	out<-2*lambda*(exp(const*t)-1)#
+	out<-out/(const+const*exp(const*t)+(lambda+mu+psi)*(exp(const*t)-1))#
+	out<-out^(n-1)#
+	help1<- (4*mu*lambda*(-1 + exp(const*t))^2 +(mu+lambda+psi+const-(mu+lambda+psi-const)*exp(const*t)) * (const + const*exp(const*t) + (mu + lambda + psi) * (-1 + exp(const*t))))#
+	out<-out*help1#
+	out<-out/(const+const*exp(const*t)+(lambda+mu+psi)*(exp(const*t)-1))^2#
+	out#
+}#
+q <- function(t,l,m,rho=1){ #
+	rho*l*(1- exp(-(l-m)*t))/(rho*l+(l*(1-rho)-m)*exp(-(l-m)*t))#
+	}#
+p0 <- function(t,l,m,rho=1){ #
+	1-(rho*(l-m))/(rho*l+(l*(1-rho)-m)*exp(-(l-m)*t))#
+	}#
+p1 <- function(t,l,m,rho=1){ rho*(l-m)^2 * exp(-(l-m)*t)/(rho*l+(l*(1-rho)-m)*exp(-(l-m)*t))^2}#
+pn <- function(t,l,m,rho=1,n){ p1(t,l,m,rho) * (q(t,l,m,rho))^(n-1)}
+t<-2#
+l<-1#
+m<-0.5#
+psi<-0#
+n<-1#
+#
+p0all(t,l,m,psi)#
+p0(t,l,m)#
+#
+pnall(n,t,l,m,psi)#
+pn(t,l,m,n=n)
+t<-2#
+l<-1#
+m<-0.5#
+psi<-0.5#
+n<-1#
+#
+pnall(n,t,l,m,psi)#
+pn(t,l,m,n=n)
+t<-2#
+l<-1#
+m<-0.5#
+psi<-0.5#
+n<-1#
+#
+p0all(t,l,m,psi)#
+pnall(n,t,l,m,psi)
+t<-2#
+l<-2#
+m<-0.7#
+psi<-0.5#
+n<-5#
+#
+p0all(t,l,m,psi)#
+pnall(n,t,l,m,psi)
+pik <- function(i,k,lambda,mu,psi){#
+	out<-0#
+	index<-max(0,i-k)#
+	for (j in index:(i-1)){#
+		out<-out+choose(i,j)*choose(k-1,i-j-1)*p0all(t,l,m,psi)^j)*pnall(1,t,l,m,psi)^(i-j-1)*pnall(k-(i-j)+1,t,l,m,psi)#
+	}#
+	out#
+}
+pik <- function(i,k,lambda,mu,psi){#
+	out<-0#
+	index<-max(0,i-k)#
+	for (j in index:(i-1)){#
+		out<-out+choose(i,j)*choose(k-1,i-j-1)*p0all(t,l,m,psi)^j*pnall(1,t,l,m,psi)^(i-j-1)*pnall(k-(i-j)+1,t,l,m,psi)#
+	}#
+	out#
+}
+t<-2#
+l<-2#
+m<-0.7#
+psi<-0.5#
+n<-5#
+i<-1#
+k<-n#
+#
+p0all(t,l,m,psi)#
+pnall(n,t,l,m,psi)#
+#
+p0(t,l,m)#
+pn(t,l,m,n=n)#
+#
+pik(i,k,l,m,psi)
+out<-0#
+for (k in 0:20) {out<-out+pik(1,k,l,m,psi)}#
+out
+out<-0#
+for (k in 0:200) {out<-out+pik(1,k,l,m,psi)}#
+out
+pik <- function(i,k,lambda,mu,psi){#
+	if (k==0) {out <- p0all(t,l,m,psi)} else {#
+	out<-0#
+	index<-max(0,i-k)#
+	for (j in index:(i-1)){#
+		out<-out+choose(i,j)*choose(k-1,i-j-1)*p0all(t,l,m,psi)^j*pnall(1,t,l,m,psi)^(i-j-1)*pnall(k-(i-j)+1,t,l,m,psi)#
+	}}#
+	out#
+}
+out<-0#
+for (k in 0:200) {out<-out+pik(1,k,l,m,psi)}#
+out
+out<-0#
+for (k in 0:400) {out<-out+pik(1,k,l,m,psi)}#
+out
+out<-p0all(t,l,m,psi)#
+for (k in 1:400) {out<-out+pnall(k,l,m,psi)}#
+out
+pik <- function(i,k,t,lambda,mu,psi){#
+	if (k==0) {out <- p0all(t,l,m,psi)} else {#
+	out<-0#
+	index<-max(0,i-k)#
+	for (j in index:(i-1)){#
+		out<-out+choose(i,j)*choose(k-1,i-j-1)*p0all(t,l,m,psi)^j*pnall(1,t,l,m,psi)^(i-j-1)*pnall(k-(i-j)+1,t,l,m,psi)#
+	}}#
+	out#
+}
+out<-0#
+for (k in 0:400) {out<-out+pik(1,k,t,l,m,psi)}#
+out#
+#
+out<-p0all(t,l,m,psi)#
+for (k in 1:400) {out<-out+pnall(k,t,l,m,psi)}#
+out
+out<-p0all(t,l,m,psi)#
+for (k in 1:4000) {out<-out+pnall(k,t,l,m,psi)}#
+out
+psi<-0#
+#
+out<-0#
+for (k in 0:400) {out<-out+pik(1,k,t,l,m,psi)}#
+out#
+#
+out<-p0all(t,l,m,psi)#
+for (k in 1:400) {out<-out+pnall(k,t,l,m,psi)}#
+out
+library(TreePar)#
+tree<-sim.bd.taxa(10,1,1,0,complete=F,stochsampling=T)#
+bd.shifts.optim(getx(tree[[1]]),c(1),1,0,2)[[2]]#
+library(geiger)#
+medusa(tree[[1]],partitions=1,model="bd")
+0.3051488/(1-0.7790106)
+0.3051488/(1-0.7790106)*0.7790106
+8.2635-8.6695043
+log(2)
+LikShifts
+LikShifts(c(0.08770824, 0.09232316, 0.31897003, 0.33778480, 0.64549516, 1.05185909, 1.17723322, 1.21281778, 1.56885892),c(0),c(1),c(0.5),c(1))
+LikShifts(c(0.08770824, 0.09232316, 0.31897003, 0.33778480, 0.64549516, 1.05185909, 1.17723322, 1.21281778, 1.56885892),c(0),c(1.38083),c(1.075681),c(1))
+LikShifts(c(0.08770824, 0.09232316, 0.31897003, 0.33778480, 0.64549516, 1.05185909, 1.17723322, 1.21281778, 1.56885892),c(0),c(1.380835),c(1.075681),c(1))
+LikShifts(c(0.08770824, 0.09232316, 0.31897003, 0.33778480, 0.64549516, 1.05185909, 1.17723322, 1.21281778, 1.56885892),c(0),c(1.38083),c(1.075681),c(1))
+bd.shifts.optim(c(0.08770824, 0.09232316, 0.31897003, 0.33778480, 0.64549516, 1.05185909, 1.17723322, 1.21281778, 1.56885892),c(1),1,0,2)[[2]]
+LikShifts(c(0.08770824, 0.09232316, 0.31897003, 0.33778480, 0.64549516, 1.05185909, 1.17723322, 1.21281778, 1.56885892),c(0),c(1.380835),c(1.075681),c(1))
+LikShifts(c(0.08770824, 0.09232316, 0.31897003, 0.33778480, 0.64549516, 1.05185909, 1.17723322, 1.21281778, 1.56885892),c(0),c(1.38083),c(1.075681),c(1))
+10000/39
+260*39
+10000/39.6
+library(TreePar)
+library(ape)
+drop.tip
+library(ape)#
+library(TreeSim)#
+setwd("/Users/tstadler/Documents/Data/Uni/Research/R/TreeParProject/TreePar/R")#
+filenames <- list.files(pattern="*.R")#
+for (i in filenames){source(i)}#
+#
+##################
+library(TreeSim)#
+library(TreePar)#
+#
+tree<-sim.bd.taxa(10000,10,1,0.999,complete=FALSE,stochsampling=TRUE)#
+res<-vector()#
+#
+for (i in 1:length(tree)){#
+x<-getx(tree[[i]])#
+#
+outs<-bd.shifts.optim(x,c(1),1,35,80,maxitk=10,groups=0,survival=1)#
+outns<-bd.shifts.optim(x,c(1),1,35,80,maxitk=10,groups=0,survival=0)#
+#
+res<-rbind(res,c(outs[[2]][[1]],outns[[2]][[1]]))}#
+#
+simres<-res#
+simres#
+#
+##################
+#
+q <- function(t,l,m,rho=1){ #
+	rho*l*(1- exp(-(l-m)*t))/(rho*l+(l*(1-rho)-m)*exp(-(l-m)*t))#
+	}#
+p0 <- function(t,l,m,rho=1){ #
+	1-(rho*(l-m))/(rho*l+(l*(1-rho)-m)*exp(-(l-m)*t))#
+	}#
+p1 <- function(t,l,m,rho=1){ rho*(l-m)^2 * exp(-(l-m)*t)/(rho*l+(l*(1-rho)-m)*exp(-(l-m)*t))^2}#
+pn <- function(t,l,m,rho=1,n){ p1(t,l,m,rho) * (q(t,l,m,rho))^(n-1)}#
+#
+# TODO: n pn#
+expn <- function(d,r,t){#
+	mu <- d*r/(1-r)#
+	lamb <- d+mu#
+	out0<-0#
+	for (i in 1:100000) {out0<-out0+i*pn(t,lamb,mu,n=i)}#
+	out1<- exp(d*t)#
+	# Stadler et al, AmNat:#
+	out2 <- exp(d*t)-((1-r)/(1-r*exp(-d*t)))#
+	# Magallon:#
+	out3<- (exp(d*t)-r)/(1-r)#
+	c(out1,out2,out3,out0,out0/(1-p0(t,lamb,mu)),p0(t,lamb,mu))#
+}#
+#
+########################################################
+########################################################
+setwd("/Users/tstadler/Documents/Data/Uni/Research/R/Jana")#
+ant2006<-read.nexus("Ants_2006.txt")#
+ant2006sprich<-read.table("ant2006_sp_rich.csv",sep=";")#
+length(which(ant2006sprich[,2]==ant2006$tip.label[1:143]))#
+ant2006final<-drop.tip(ant2006,ant2006$tip.label[144:148])#
+length(which(ant2006sprich[,2]==ant2006final$tip.label))#
+#
+pendedge<-which(ant2006final$edge[,2]<=143)#
+groups<-cbind(ant2006final$edge.length[pendedge],ant2006sprich[,3])#
+x<-getx(ant2006final)#
+#new out<-bd.shifts.optim(x,c(1,1,1),1,35,80,maxitk=10,groups=groups)#
+[1] 1.354885e+03 9.480903e-01 3.085514e-02#
+[1] 1.332342e+03 9.986220e-01 9.815821e-01 1.765271e-03 6.175780e-02 6.600000e+01#
+[1] 1.330793e+03 9.983541e-01 9.738566e-01 9.885471e-01 2.105036e-03 7.088750e-02 4.678814e-02 6.600000e+01 7.800000e+01#
+#
+outant2006<-bd.shifts.optim(x,c(1,1,1,1),1,35,80,maxitk=10,groups=groups,survival=0)#
+[1] 1360.6942093    0.9434821    0.0319896#
+[1] 1.335348e+03 9.596538e-01 5.269613e-01 2.867938e-02 7.549456e-02 4.500000e+01#
+[1] 1.329207e+03 9.999189e-01 5.825716e-01 2.026838e-04 1.001350e-04 2.742882e-01 7.234277e-02 3.700000e+01 4.500000e+01#
+pchisq(2*(1360.6942093-1.335348e+03),3)#
+pchisq(2*(1.335348e+03-1.329207e+03),3)#
+#expected number of species:#
+expn(3.085514e-02,9.480903e-01,max(x))*2#
+#probability that we observe N= 11680 species:#
+N <- sum(groups[,2])#
+d<-3.085514e-02#
+r<-9.480903e-01#
+mu <- d*r/(1-r)#
+lamb <- d+mu#
+#sim.bd.age(max(x),10,lamb,mu,mrca=TRUE,complete=FALSE)#
+pnind<-vector()#
+#new for (i in 1:(sum(groups[,2]))){#
+	# pnind<-c(pnind,pn(max(x),lamb, mu,n=i))#
+# }#
+# pcum <- 0#
+# for (i in 2:(N-1)){#
+	# for (j in 1:(i-1)) {#
+	# pcum<-pcum + pnind[j]*pnind[i-j]		#
+	# }#
+# }#
+pcum<-0.002754351#
+pcumsurv<-pcum/(1-p0(max(x),lamb,mu))^2#
+#prob that two lineages gives rise to less than #ant species is 0.9970227 given at least 2 species.#
+#
+##############
+#rate heterogeneity:#
+plot(log(groups[,2])/groups[,1])#
+index<-which(log(groups[,2])/groups[,1] == 0)#
+groups2<-groups#
+groups2[index,2]<-50#
+#new out<-bd.shifts.optim(x,c(1),1,35,80,maxitk=10,groups=groups2)#
+#new outy<-bd.shifts.optim(x,c(1),1,35,80,maxitk=10,groups=groups2,yule=TRUE)#
+########################################################
+ant2006Cut<-read.tree("ants2006_25.tre")#
+indexpendant<-which(ant2006$edge[,2]<149)#
+sort(ant2006$edge.length[indexpendant])   # pendant branches#
+plot(ant2006)#
+x<-getx(ant2006Cut)#
+groups<-rep(35.15,length(ant2006Cut $tip.label))#
+groups<-cbind(groups,rep(1,length(ant2006Cut $tip.label)))#
+groups[1,2]<-12762+1-length(ant2006Cut $tip.label)#
+#new out<-bd.shifts.optim(x,c(1,1,1),1,35,80,maxitk=10,groups=groups)#
+[1] 1413.6370859    0.9912614    0.0169550#
+[1] 1343.90790759    1.01070094    0.99927640   -0.14145328    0.07235984   39.00000000#
+[1] 1343.55076916    1.01063032    1.11300096    0.99927730   -0.14078005   -0.14542409    0.07226968   35.00000000   39.00000000#
+## again turnover so high since we force to have no branching in pendant edges prior to 35!!!#
+2*expn(0.0169550,0.9912614,max(x))#
+#
+outant2006Cut<-bd.shifts.optim(x,c(1,1,1,1),1,35,80,maxitk=10,groups=groups,survival=0)#
+[1] 1422.8427440    0.9903885    0.0179910#
+[1] 1.347648e+03 9.994313e-01 6.264371e-01 1.465097e-03 7.902057e-02 3.500000e+01#
+[1] 1.341860e+03 9.999629e-01 3.900398e-01 7.148773e-03 1.000777e-04 1.727944e-01 8.186166e-02 3.500000e+01 4.500000e+01#
+pchisq(2*(1422.8427440-1.347648e+03),3)#
+pchisq(2*(1.347648e+03-1.341860e+03),3)
+simres
+outant2006
+outant2006[[2]]
+pchisq(2*(1360.6942093-1.335348e+03),3)#
+pchisq(2*(1.335348e+03-1.329207e+03),3)
+library(ape)#
+library(TreeSim)#
+setwd("/Users/tstadler/Documents/Data/Uni/Research/R/TreeParProject/TreePar/R")#
+filenames <- list.files(pattern="*.R")#
+for (i in filenames){source(i)}
+library(TreeSim)#
+library(TreePar)

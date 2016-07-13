@@ -1,0 +1,36 @@
+set.seed(1)#
+rootlength<-1#
+test0<-read.tree(text="((3:1.5,4:0.5):1,(1:2,2:1):3);")#
+test<-addroot(test0,rootlength)#
+test$Nnode<-4#
+test$states<-rep(1,4)#
+times<-getx(test,sersampling=1)[,1]#
+ttype<-getx(test,sersampling=1)[,2]#
+times0<-getx(test0,sersampling=1)[,1]#
+ttype0<-getx(test0,sersampling=1)[,2]
+library(TreePar)
+set.seed(1)#
+rootlength<-1#
+test0<-read.tree(text="((3:1.5,4:0.5):1,(1:2,2:1):3);")#
+test<-addroot(test0,rootlength)#
+test$Nnode<-4#
+test$states<-rep(1,4)#
+times<-getx(test,sersampling=1)[,1]#
+ttype<-getx(test,sersampling=1)[,2]#
+times0<-getx(test0,sersampling=1)[,1]#
+ttype0<-getx(test0,sersampling=1)[,2]
+Tree likelihood#
+# Tree with root edge#
+print(-LikShiftsSTT(c(2,1,0.8,0.5,1.5345),#
+times,ttype,sampling=0,sprob=c(1/3,2/3),survival=1,root=0)  )#
+# Tree without root edge#
+print(-LikShiftsSTT(c(2,1,0.8,0.5,1.5345),#
+times0,ttype0,sampling=0,sprob=c(1/3,2/3),survival=1,root=0)  )
+library(TreeSim)
+?TreeSim
+?TreePar
+?TreeSim
+library(TreePar)
+?TreePar
+library(TreePar)
+?LikTypesSTT
